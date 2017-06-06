@@ -1,3 +1,5 @@
 # Tiverton
 
-A multiplayer game similar to Settlers of Catan.
+A game similar to Settlers of Catan.
+
+![Screenshot](screenshot.png?raw=true "Screenshot")
