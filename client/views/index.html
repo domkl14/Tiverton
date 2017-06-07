@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='//fonts.googleapis.com/css?family=Lato:400,300,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="/client/css/style.css">
+</head>
+<body>
+<div id="container">
+  <div class="left">
+    <canvas id="ctx" width="800" height="655" style="border:1px solid #000000;"></canvas>
+  </div>
+  <div id="controls" class="right">
+    <div id="info">
+      <span id="color_span">COLOR: <span id="color"></span></span>
+      <span id="name_span">NAME: <input type="text" id="name" value=""></span>
+    </div>
+    <div id="players"></div>
+    <div id="button_menu">
+      <button id="roll" type="button">ROLL DICE</button>
+      <button id="move_robber" type="button">MOVE ROBBER</button>
+      <button id="rob" type="button">ROB</button>
+      <br>
+      <button id="road" type="button">ROAD</button>
+      <button id="settlement" type="button">SETTLEMENT</button>
+      <button id="city" type="button">CITY</button>
+      <button id="development_card" type="button">DEVELOPMENT CARD</button>
+      <br>
+      <button id="remove_road" type="button">X-ROAD</button>
+      <button id="remove_piece" type="button">X-SETTLEMENT/CITY</button>
+      <button id="remove_development_card" type="button">X-DEVELOPMENT CARD</button>
+    </div>
+    <div id="resources_and_dcards">
+      <table>
+        <tr>
+          <td id="resources_title" colspan="4">RESOURCES</td>
+          <td id="my_dcards_title" colspan="2">DEVELOPMENT CARDS</td>
+        </tr>
+        <tr>
+          <td><button id="wood_plus" type="button">+</button></td>
+          <td><button id="wood_minus" type="button">-</button></td>
+          <td class="resource">WOOD</td>
+          <td id="wood_count" class="count"></td>
+          <td id="my_dcards_1"></td>
+        </tr>
+        <tr>
+          <td><button id="brick_plus" type="button">+</button></td>
+          <td><button id="brick_minus" type="button">-</button></td>
+          <td class="resource">BRICK</td>
+          <td id="brick_count" class="count"></td>
+          <td id="my_dcards_2"></td>
+        </tr>
+        <tr>
+          <td><button id="hay_plus" type="button">+</button></td>
+          <td><button id="hay_minus" type="button">-</button></td>
+          <td class="resource">HAY</td>
+          <td id="hay_count" class="count"></td>
+          <td class="opponent"><span id="opponent_1_name"></span><span id="opponent_1_dcards"></span></td>
+        </tr>
+        <tr>
+          <td><button id="sheep_plus" type="button">+</button></td>
+          <td><button id="sheep_minus" type="button">-</button></td>
+          <td class="resource">SHEEP</td>
+          <td id="sheep_count" class="count"></td>
+          <td class="opponent"><span id="opponent_2_name"></span><span id="opponent_2_dcards"></span></td>
+        </tr>
+        <tr>
+          <td><button id="ore_plus" type="button">+</button></td>
+          <td><button id="ore_minus" type="button">-</button></td>
+          <td class="resource">ORE</td>
+          <td id="ore_count" class="count"></td>
+          <td class="opponent"><span id="opponent_3_name"></span><span id="opponent_3_dcards"></span></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="resource">TOTAL</td>
+          <td id="total_count" class="count"></td>
+        </tr>
+      </table>
+    </div>
+    <div id="log_container">
+      <div id="game_log_title">GAME LOG / CHAT<button id="clear" type="button">CLEAR</button></div>
+      <div id="game_log" style="width:317px; height:288px; overflow-y:scroll"></div>
+      <input type="text" id="chat" size="53" placeholder="Type a message...">
+    </div>
+  </div>
+</div>
+</body>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="/client/js/client.js"></script>
+</html>

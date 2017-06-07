@@ -1,0 +1,16 @@
+{
+  "name": "Tiverton",
+  "version": "1.0.0",
+  "description": "A game similar to Settlers of Catan",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.15.3",
+    "socket.io": "^2.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dominick Lam",
+  "license": "ISC"
+}
