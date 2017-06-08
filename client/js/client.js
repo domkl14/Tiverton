@@ -1,4 +1,5 @@
-const COLORS = {red: '#d91f00', blue: '#0073e6', white: 'white', orange: 'orange'};
+const COLORS = {red: 'rgb(217, 31, 0)', blue: 'rgb(0, 115, 230)', white: 'rgb(255, 255, 255)', 
+  orange: 'rgb(255, 165, 0)'};
 const BUTTON_IDS = ['move_robber', 'rob', 'road', 'settlement', 'city', 'remove_road', 'remove_piece', 
   'remove_development_card'];
 const WEIGHTED_DICE_ROLLS = [2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 
@@ -15,9 +16,8 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 $('#controls').width((window.innerWidth - 850) + 'px');
 
 var socket = io();
+var game;
 var id;
-var locations;
-var points;
 var s;
 
 /** 
@@ -25,9 +25,7 @@ var s;
  * data: {id, name, game}
  */
 socket.on('initializeBoard', function(data) {
-  var game = data.game;
-  locations = data.game.locations;
-  points = data.game.points;
+  game = data.game;
   s = data.game.s;
   id = data.id;
   $('#color').text(id.toUpperCase());
@@ -63,7 +61,8 @@ socket.on('initializeBoard', function(data) {
  * data: {game}
  */
 socket.on('redrawBoard', function(data) {
-  drawBoard(data.game);
+  game = data.game;
+  drawBoard(game);
 });
 
 /**
@@ -185,17 +184,19 @@ socket.on('setDevelopmentCards', function(data) {
   }
 });
 
-
-// Canvas click handler
+/**
+ * Canvas click handler
+ */
 canvas.addEventListener('click', function(event) {
+  drawBoard(game);
   // Get closest location coordinates to click location on canvas
   var x = event.pageX - canvas.offsetLeft;
   var y = event.pageY - canvas.offsetTop;
   var min_dist = Number.MAX_VALUE;
   var min_idx = -1;
-  for (var i = 0; i < locations.length; i++) {
-    var dx = locations[i].x - x;
-    var dy = locations[i].y - y;
+  for (var i = 0; i < game.locations.length; i++) {
+    var dx = game.locations[i].x - x;
+    var dy = game.locations[i].y - y;
     if (dx * dx + dy * dy < min_dist) {
       min_dist = dx * dx + dy * dy;
       min_idx = i;
@@ -207,9 +208,9 @@ canvas.addEventListener('click', function(event) {
     // Get closest upper point location per tile
     var min_dist = Number.MAX_VALUE;
     var min_idx = -1;
-    for (var i = 0; i < points.length; i++) {
-      var dx = points[i].x - x;
-      var dy = (points[i].y + s) - y;
+    for (var i = 0; i < game.points.length; i++) {
+      var dx = game.points[i].x - x;
+      var dy = (game.points[i].y + s) - y;
       if (dx * dx + dy * dy < min_dist) {
         min_dist = dx * dx + dy * dy;
         min_idx = i;
@@ -227,9 +228,9 @@ canvas.addEventListener('click', function(event) {
   else if ($('#road').hasClass('active')) {
     var min_dist2 = Number.MAX_VALUE;
     var min_idx2 = -1;
-    for (var i = 0; i < locations.length; i++) {
-      var dx = locations[i].x - x;
-      var dy = locations[i].y - y;
+    for (var i = 0; i < game.locations.length; i++) {
+      var dx = game.locations[i].x - x;
+      var dy = game.locations[i].y - y;
       if (dx * dx + dy * dy < min_dist2 && i != min_idx) {
         min_dist2 = dx * dx + dy * dy;
         min_idx2 = i;
@@ -252,9 +253,9 @@ canvas.addEventListener('click', function(event) {
   else if ($('#remove_road').hasClass('active')) {
     var min_dist2 = Number.MAX_VALUE;
     var min_idx2 = -1;
-    for (var i = 0; i < locations.length; i++) {
-      var dx = locations[i].x - x;
-      var dy = locations[i].y - y;
+    for (var i = 0; i < game.locations.length; i++) {
+      var dx = game.locations[i].x - x;
+      var dy = game.locations[i].y - y;
       if (dx * dx + dy * dy < min_dist2 && i != min_idx) {
         min_dist2 = dx * dx + dy * dy;
         min_idx2 = i;
@@ -270,7 +271,177 @@ canvas.addEventListener('click', function(event) {
   }
 }, false);
 
-// On name change
+/**
+ * On mouse move over canvas
+ */
+$('#ctx').mousemove(function(event) {
+  if ($('#road').hasClass('active') || $('#settlement').hasClass('active') || $('#city').hasClass('active')) {
+    drawBoard(game);
+    ctx.fillStyle = 'rgba' + COLORS[id].substring(3, COLORS[id].length - 1) + ', 0.5)';
+  } else if($('#move_robber').hasClass('active') || $('#rob').hasClass('active') || $('#remove_road').hasClass('active') 
+    || $('#remove_piece').hasClass('active')) {
+    drawBoard(game);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  } else {
+    return;
+  }
+
+  // Get closest location coordinates to click location on canvas
+  var x = event.pageX - canvas.offsetLeft;
+  var y = event.pageY - canvas.offsetTop;
+  var min_dist = Number.MAX_VALUE;
+  var min_idx = -1;
+  for (var i = 0; i < game.locations.length; i++) {
+    var dx = game.locations[i].x - x;
+    var dy = game.locations[i].y - y;
+    if (dx * dx + dy * dy < min_dist) {
+      min_dist = dx * dx + dy * dy;
+      min_idx = i;
+    }
+  }
+  
+  // Player is moving the robber
+  if ($('#move_robber').hasClass('active')) {
+    // Get closest upper point location per tile
+    var min_dist = Number.MAX_VALUE;
+    var min_idx = -1;
+    for (var i = 0; i < game.points.length; i++) {
+      var dx = game.points[i].x - x;
+      var dy = (game.points[i].y + s) - y;
+      if (dx * dx + dy * dy < min_dist) {
+        min_dist = dx * dx + dy * dy;
+        min_idx = i;
+      }
+    }
+    ctx.beginPath();
+    ctx.arc(game.points[min_idx].x, game.points[min_idx].y + game.s * 0.7, game.s / 3.5, 0, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+  // Player is placing a road
+  else if ($('#road').hasClass('active')) {
+    var min_dist2 = Number.MAX_VALUE;
+    var min_idx2 = -1;
+    for (var i = 0; i < game.locations.length; i++) {
+      var dx = game.locations[i].x - x;
+      var dy = game.locations[i].y - y;
+      if (dx * dx + dy * dy < min_dist2 && i != min_idx) {
+        min_dist2 = dx * dx + dy * dy;
+        min_idx2 = i;
+      }
+    }
+    // Check if road location already taken
+    for (var i in game.roadPlacements) {
+      if (game.roadPlacements[i].idx1 == min_idx && game.roadPlacements[i].idx2 == min_idx2
+        || game.roadPlacements[i].idx2 == min_idx && game.roadPlacements[i].idx1 == min_idx2) {
+        return;
+      }
+    }
+    // Check points are adjacent
+    var adjacent = false;
+    for (var i in game.adjacentLocations[min_idx]) {
+      if (min_idx2 == game.adjacentLocations[min_idx][i]) {
+        adjacent = true;
+        break;
+      }
+    }
+    if (!adjacent) return;
+    ctx.beginPath();
+    var x = (game.locations[min_idx].x + game.locations[min_idx2].x) / 2;
+    var y = (game.locations[min_idx].y + game.locations[min_idx2].y) / 2;
+    ctx.arc(x, y, game.s * 0.1, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+  }
+  // Player is robbing someone
+  else if ($('#rob').hasClass('active')) {
+    // Check if settlement / city is on the robber tile
+    var isValid = false;
+    for (var i in game.adjacentTiles[min_idx]) {
+      var tileIdx = game.adjacentTiles[min_idx][i];
+      if (tileIdx == game.robber) {
+        isValid = true;
+        break;
+      }
+    }
+    if (!isValid) return;
+    // Check if there exists a settlement / city (not yourself) at location
+    if (game.placements[min_idx] == null || game.placements[min_idx].id == id) {
+      return;
+    }
+    ctx.beginPath();
+    ctx.arc(game.locations[min_idx].x, game.locations[min_idx].y, game.s * 0.2, 0, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+  // Player is placing a settlement
+  else if ($('#settlement').hasClass('active')) {
+    if (game.placements[min_idx] == null) {
+      ctx.beginPath();
+      ctx.arc(game.locations[min_idx].x, game.locations[min_idx].y, game.s * 0.15, 0, 2 * Math.PI);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+  // Player is placing a city
+  else if ($('#city').hasClass('active')) {
+    if (game.placements[min_idx] != null && game.placements[min_idx].type == 'settlement'
+      && game.placements[min_idx].id == id) {
+      ctx.beginPath();
+      ctx.arc(game.locations[min_idx].x, game.locations[min_idx].y, game.s * 0.25, 0, 2 * Math.PI);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+  // Player is removing a road
+  else if ($('#remove_road').hasClass('active')) {
+    var min_dist2 = Number.MAX_VALUE;
+    var min_idx2 = -1;
+    for (var i = 0; i < game.locations.length; i++) {
+      var dx = game.locations[i].x - x;
+      var dy = game.locations[i].y - y;
+      if (dx * dx + dy * dy < min_dist2 && i != min_idx) {
+        min_dist2 = dx * dx + dy * dy;
+        min_idx2 = i;
+      }
+    }
+    // Check if your road
+    var isValid = false;
+    for (var i in game.roadPlacements) {
+      if ((game.roadPlacements[i].idx1 == min_idx && game.roadPlacements[i].idx2 == min_idx2
+        || game.roadPlacements[i].idx2 == min_idx && game.roadPlacements[i].idx1 == min_idx2)
+        && game.roadPlacements[i].id == id) {
+        isValid = true;
+        break;
+      }
+    }
+    if (!isValid) return;
+    ctx.beginPath();
+    var x = (game.locations[min_idx].x + game.locations[min_idx2].x) / 2;
+    var y = (game.locations[min_idx].y + game.locations[min_idx2].y) / 2;
+    ctx.arc(x, y, game.s * 0.1, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+  }
+  // Player is removing a settlement / city
+  else if ($('#remove_piece').hasClass('active')) {
+    if (game.placements[min_idx] != null && game.placements[min_idx].id == id) {
+      ctx.beginPath();
+      ctx.arc(game.locations[min_idx].x, game.locations[min_idx].y, game.s * 0.2, 0, 2 * Math.PI);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+});
+
+/**
+ * On name change
+ */
 $('#name').change(function() {
   // No name, default name is color
   if ($(this).val() == '') {
@@ -279,7 +450,9 @@ $('#name').change(function() {
   socket.emit('nameChange', {id: id, name: $(this).val()});
 });
 
-// Button click handlers
+/**
+ * Button click handlers
+ */
 $('#move_robber, #rob, #road, #settlement, #city, #remove_road, #remove_piece, #remove_development_card').click(
   function() {
   var isHighlighted = $(this).hasClass('active');
@@ -293,7 +466,9 @@ $('#move_robber, #rob, #road, #settlement, #city, #remove_road, #remove_piece, #
   }
 });
 
-// Roll button click handler
+/**
+ * Roll button click handler
+ */
 $('#roll').click(function() {
   // Unhighlight all buttons
   for (var i in BUTTON_IDS) {
@@ -317,17 +492,23 @@ $('#roll').click(function() {
   }
 });
 
-// Development card button click handler
+/**
+ * Development card button click handler
+ */
 $('#development_card').click(function() {
   socket.emit('developmentCard', {id: id});
 });
 
-// Clear game log button click handler
+/**
+ * Clear game log button click handler
+ */
 $('#clear').click(function() {
   $('#game_log').text('');
 });
 
-// Player requests to adjust a resource
+/**
+ * Player requests to adjust a resource
+ */
 $('#wood_plus, #wood_minus, #brick_plus, #brick_minus, #hay_plus, #hay_minus, #sheep_plus, #sheep_minus, #ore_plus, \
   #ore_minus').click(function() {
   var resource = this.id.substring(0, this.id.indexOf('_'));
@@ -336,7 +517,9 @@ $('#wood_plus, #wood_minus, #brick_plus, #brick_minus, #hay_plus, #hay_minus, #s
   socket.emit('adjustResources', {id: id, resource: resource, type: type});
 });
 
-// Player sends a chat message
+/**
+ * Player sends a chat message
+ */
 $('#chat').bind('keydown', function(event) {
   if (event.keyCode == 13) {
     socket.emit('sendMsgToServer', {message: $('#name').val().toUpperCase() + ': <em>' + $('#chat').val() + '</em>'});
@@ -365,11 +548,13 @@ socket.on('logError', function(data) {
 /**
  * Switch to error page
  */
-socket.on('fullGame', function() {
+socket.on('gameIsFull', function() {
   document.location = '/client/views/error.html';
 });
 
-// Draw board
+/**
+ * Draw board
+ */
 function drawBoard(game) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = '#87cefa';
@@ -430,7 +615,9 @@ function drawBoard(game) {
   }
 }
 
-// Draw a tile on point (x, y) with side length s
+/**
+ * Draw a tile on point (x, y) with side length s
+ */
 function drawTile(x, y, color, hasOdds) {
   var h = 2 * s;
   var w = Math.sqrt(3) / 2 * s * 2;
@@ -456,7 +643,9 @@ function drawTile(x, y, color, hasOdds) {
   }
 }
 
-// Draw robber
+/**
+ * Draw robber
+ */
 function drawRobber(x, y) {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
   ctx.beginPath();
@@ -466,7 +655,9 @@ function drawRobber(x, y) {
   ctx.stroke();
 }
 
-// Draw ports
+/**
+ * Draw ports
+ */
 function drawPorts(locs) {
   ctx.fillStyle = '#643d01'; // wood color
   // ctx.fillStyle = '#4a4b46'; // gravel color
@@ -701,7 +892,9 @@ function drawPorts(locs) {
   ctx.restore();
 }
 
-// Draw a settlement at (x, y)
+/**
+ * Draw a settlement at (x, y)
+ */
 function drawSettlement(x, y, color) {
   ctx.beginPath();
   ctx.moveTo(x, y - 15);
@@ -715,7 +908,9 @@ function drawSettlement(x, y, color) {
   ctx.stroke();
 }
 
-// Draw a city at (x, y)
+/** 
+ * Draw a city at (x, y)
+ */
 function drawCity(x, y, color) {
   ctx.beginPath();
   ctx.moveTo(x - 5, y - 20);
@@ -731,7 +926,9 @@ function drawCity(x, y, color) {
   ctx.stroke();
 }
 
-// Draw a road from (x1, y1) to (x2, y2)
+/**
+ * Draw a road from (x1, y1) to (x2, y2)
+ */
 function drawRoad(x1, y1, x2, y2, color) {
   ctx.beginPath();
   if (Math.abs(x1 - x2) > EPS) {

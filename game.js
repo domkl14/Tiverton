@@ -208,7 +208,7 @@ function GameController(io) {
     // Maximum of four players
     if (Object.keys(PLAYER_LIST).length >= 4) {
       console.log('Socket rejected:\t', socket.id);
-      socket.emit('fullGame');
+      socket.emit('gameIsFull');
       return;
     }
 
@@ -719,7 +719,9 @@ function GameController(io) {
   return self;
 }
 
-// Shuffle array a
+/**
+ * Shuffle array a
+ */
 function shuffle(a) {
   var j, x, i;
   for (i = a.length; i; i--) {
@@ -730,7 +732,9 @@ function shuffle(a) {
   }
 }
 
-// Add locations from tile with point (x, y) and side length s
+/**
+ * Add locations from tile with point (x, y) and side length s
+ */
 function addLocations(x, y, s, locs) {
   var h = 2 * s;
   var w = Math.sqrt(3) / 2 * s * 2;
