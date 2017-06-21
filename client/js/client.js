@@ -440,6 +440,25 @@ $('#ctx').mousemove(function(event) {
 });
 
 /**
+ * Color change
+ */
+$('#color_span').click(function() {
+  socket.emit('changeColor', {id: id, color: $('#color').text().toLowerCase()});
+})
+
+/**
+ * Change player color
+ * data: {newColor}
+ */
+socket.on('changeColorNames', function(data) {
+  if ($('#name').val() == $('#color').text()) {
+    $('#name').val(data.newColor.toUpperCase());
+  }
+  $('#color').text(data.newColor.toUpperCase());
+  id = data.newColor;
+});
+
+/**
  * On name change
  */
 $('#name').change(function() {
@@ -447,7 +466,7 @@ $('#name').change(function() {
   if ($(this).val() == '') {
     $(this).val(id.toUpperCase());
   }
-  socket.emit('nameChange', {id: id, name: $(this).val()});
+  socket.emit('changeName', {id: id, name: $(this).val()});
 });
 
 /**

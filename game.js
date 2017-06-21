@@ -252,10 +252,69 @@ function GameController(io) {
     });
 
     /**
+     * Player changes their color
+     * data: {id, color}
+     */
+    socket.on('changeColor', function(data) {
+      if (Object.keys(PLAYER_LIST).length >= 4) {
+        socket.emit('logError', {error: 'ALL COLORS TAKEN'});
+        return;
+      }
+      var idx = COLORS.indexOf(data.color);
+      while (PLAYER_LIST[COLORS[idx]] != null) {
+        idx = (idx + 1) % 4;
+      }
+      var newColor = COLORS[idx];
+      
+      // Change placements
+      for (var i in self.placements) {
+        if (self.placements[i] != null && self.placements[i].id == data.color) {
+          self.placements[i].id = newColor;
+        }
+      }
+      
+      // Change road placements
+      for (var i in self.roadPlacements) {
+        if (self.roadPlacements[i] != null && self.roadPlacements[i].id == data.color) {
+          self.roadPlacements[i].id = newColor;
+        }
+      }
+      // Change resources
+      self.resources[newColor] = self.resources[data.color];
+      delete self.resources[data.color];
+      
+      // Change player development cards
+      self.playerDevelopmentCards[newColor] = self.playerDevelopmentCards[data.color];
+      delete self.playerDevelopmentCards[data.color];
+      
+      // Change id in player list
+      PLAYER_LIST[newColor] = PLAYER_LIST[data.color];
+      delete PLAYER_LIST[data.color];
+      console.log('Socket changed:\t\t', id ,'->', newColor);
+      id = newColor;
+      
+      // Change name store
+      if (NAMES[data.color].toLowerCase() == data.color) {
+        NAMES[newColor] = newColor.toUpperCase();
+        io.sockets.emit('logMessage', {message: data.color.toUpperCase() + ' changed color to ' + 
+          newColor.toUpperCase()});
+      } else {
+        NAMES[newColor] = NAMES[data.color];
+        NAMES[data.color] = data.color.toUpperCase();
+        io.sockets.emit('logMessage', {message: NAMES[newColor] + ' changed color to ' + newColor.toUpperCase()});
+      }
+
+      socket.emit('changeColorNames', {newColor: newColor});
+      io.sockets.emit('listPlayers', {id: id, players: Object.keys(PLAYER_LIST), names: NAMES});
+      io.sockets.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
+      io.sockets.emit('redrawBoard', {game: self});
+    });
+
+    /**
      * Player name change
      * data: {id, name}
      */
-    socket.on('nameChange', function(data) {
+    socket.on('changeName', function(data) {
       io.sockets.emit('logMessage', {message: NAMES[data.id] + ' changed their name to ' 
         + data.name.toUpperCase()});
       NAMES[data.id] = data.name.toUpperCase();
