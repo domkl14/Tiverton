@@ -22,7 +22,7 @@ var s;
 
 /** 
  * Initialize board
- * data: {id, name, game}
+ * data: {id, name, game, resources}
  */
 socket.on('initializeBoard', function(data) {
   game = data.game;
@@ -36,13 +36,13 @@ socket.on('initializeBoard', function(data) {
   else if (id == 'orange') $('#name').css('width', '145px');
 
   // Set resources
-  $('#wood_count').text(game.resources[id].wood);
-  $('#brick_count').text(game.resources[id].brick);
-  $('#hay_count').text(game.resources[id].hay);
-  $('#sheep_count').text(game.resources[id].sheep);
-  $('#ore_count').text(game.resources[id].ore);
-  $('#total_count').text(game.resources[id].wood + game.resources[id].brick + game.resources[id].hay + 
-    game.resources[id].sheep + game.resources[id].ore);
+  $('#wood_count').text(data.resources[id].wood);
+  $('#brick_count').text(data.resources[id].brick);
+  $('#hay_count').text(data.resources[id].hay);
+  $('#sheep_count').text(data.resources[id].sheep);
+  $('#ore_count').text(data.resources[id].ore);
+  $('#total_count').text(data.resources[id].wood + data.resources[id].brick + data.resources[id].hay + 
+    data.resources[id].sheep + data.resources[id].ore);
   if ($('#total_count').text() >= 10) {
     $('#my_dcards_title, #my_dcards_1, #my_dcards_2, .opponent').css('padding-left', '17px');
   } 
@@ -133,19 +133,19 @@ socket.on('setDevelopmentCards', function(data) {
         .click(function() {
           if ($('#remove_development_card').hasClass('active')) {
             $('#remove_development_card').removeClass('active');
-            socket.emit('removeDevelopmentCard', {id: id, idx: $(this).val()});
+            socket.emit('removeDevelopmentCard', {idx: $(this).val()});
           } else if (!$(this).hasClass('active')) {
             $(this).addClass('active');
             if ($(this).text() == 'K') {
               $('#move_robber').addClass('active');
             }
-            socket.emit('useDevelopmentCard', {id: id, idx: $(this).val()});
+            socket.emit('useDevelopmentCard', {idx: $(this).val()});
           } else if ($(this).hasClass('active')) {
             $(this).removeClass('active');
             if ($(this).text() == 'K') {
               $('#move_robber').removeClass('active');
             }
-            socket.emit('hideDevelopmentCard', {id: id, idx: $(this).val()});
+            socket.emit('hideDevelopmentCard', {idx: $(this).val()});
           }
         });
       if (data.playerDevelopmentCards[id][c].used) {
@@ -216,12 +216,12 @@ canvas.addEventListener('click', function(event) {
         min_idx = i;
       }
     }
-    socket.emit('moveRobber', {id: id, idx: min_idx});
+    socket.emit('moveRobber', {idx: min_idx});
     $('#move_robber').removeClass('active');
   }
   // Player is robbing someone
   else if ($('#rob').hasClass('active')) {
-    socket.emit('rob', {id: id, idx: min_idx});
+    socket.emit('rob', {idx: min_idx});
     $('#rob').removeClass('active');
   }
   // Player is placing a road
@@ -236,17 +236,17 @@ canvas.addEventListener('click', function(event) {
         min_idx2 = i;
       }
     }
-    socket.emit('addRoad', {id: id, idx1: min_idx, idx2: min_idx2});
+    socket.emit('addRoad', {idx1: min_idx, idx2: min_idx2});
     $('#road').removeClass('active');
   } 
   // Player is placing a settlement
   else if ($('#settlement').hasClass('active')) {
-    socket.emit('addPiece', {id: id, idx: min_idx, type: 'settlement'});
+    socket.emit('addPiece', {idx: min_idx, type: 'settlement'});
     $('#settlement').removeClass('active');
   }
   // Player is placing a city
   else if ($('#city').hasClass('active')) {
-    socket.emit('addPiece', {id: id, idx: min_idx, type: 'city'});
+    socket.emit('addPiece', {idx: min_idx, type: 'city'});
     $('#city').removeClass('active');
   }
   // Player is removing a road
@@ -261,12 +261,12 @@ canvas.addEventListener('click', function(event) {
         min_idx2 = i;
       }
     }
-    socket.emit('removeRoad', {id: id, idx1: min_idx, idx2: min_idx2});
+    socket.emit('removeRoad', {idx1: min_idx, idx2: min_idx2});
     $('#remove_road').removeClass('active');
   }
   // Player is removing a settlement / city
   else if ($('#remove_piece').hasClass('active')) {
-    socket.emit('removePiece', {id: id, idx: min_idx});
+    socket.emit('removePiece', {idx: min_idx});
     $('#remove_piece').removeClass('active');
   }
 }, false);
@@ -443,7 +443,7 @@ $('#ctx').mousemove(function(event) {
  * Color change
  */
 $('#color_span').click(function() {
-  socket.emit('changeColor', {id: id, color: $('#color').text().toLowerCase()});
+  socket.emit('changeColor', {color: $('#color').text().toLowerCase()});
 })
 
 /**
@@ -466,7 +466,7 @@ $('#name').change(function() {
   if ($(this).val() == '') {
     $(this).val(id.toUpperCase());
   }
-  socket.emit('changeName', {id: id, name: $(this).val()});
+  socket.emit('changeName', {name: $(this).val()});
 });
 
 /**
@@ -505,7 +505,7 @@ $('#roll').click(function() {
   socket.emit('sendMsgToServer', {message: message});
 
   if (WEIGHTED_DICE_ROLLS[r] == 7) {
-    socket.emit('rollSeven', {id: id});
+    socket.emit('rollSeven');
   } else {
     socket.emit('distributeResources', {roll: WEIGHTED_DICE_ROLLS[r]});
   }
@@ -515,7 +515,7 @@ $('#roll').click(function() {
  * Development card button click handler
  */
 $('#development_card').click(function() {
-  socket.emit('developmentCard', {id: id});
+  socket.emit('developmentCard');
 });
 
 /**
@@ -533,7 +533,7 @@ $('#wood_plus, #wood_minus, #brick_plus, #brick_minus, #hay_plus, #hay_minus, #s
   var resource = this.id.substring(0, this.id.indexOf('_'));
   var type = this.id.substring(this.id.indexOf('_') + 1);
   if (type == 'minus' && parseInt($('#' + resource + '_count').text()) == 0) return;
-  socket.emit('adjustResources', {id: id, resource: resource, type: type});
+  socket.emit('adjustResources', {resource: resource, type: type});
 });
 
 /**
