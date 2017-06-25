@@ -126,9 +126,11 @@ socket.on('setDevelopmentCards', function(data) {
   // Set own development cards
   if (data.playerDevelopmentCards[id] != null) {
     for (var c in data.playerDevelopmentCards[id]) {
+      var type = data.playerDevelopmentCards[id][c].type;
       var el = $('<button/>')
-        .text(data.playerDevelopmentCards[id][c].type.charAt(0).toUpperCase())
+        .text(type.charAt(0).toUpperCase())
         .addClass('dcard')
+        .addClass('tooltip')
         .val(c)
         .click(function() {
           if ($('#remove_development_card').hasClass('active')) {
@@ -151,6 +153,15 @@ socket.on('setDevelopmentCards', function(data) {
       if (data.playerDevelopmentCards[id][c].used) {
         el.addClass('active');
       }
+      var toolTip = $('<span>')
+        .addClass('tooltiptext')
+        .text(type.charAt(0).toUpperCase() + type.slice(1));
+      if (type == 'knight') {
+        toolTip.width('50px');
+      } else {
+        toolTip.width('80px');
+      }
+      el.append(toolTip);
       if ($('#my_dcards_1 button').length < 7) {
         $('#my_dcards_1').append(el);
       } else {
