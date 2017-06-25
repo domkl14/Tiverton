@@ -548,6 +548,15 @@ $('#wood_plus, #wood_minus, #brick_plus, #brick_minus, #hay_plus, #hay_minus, #s
 });
 
 /**
+ * Player starts typing a chat message
+ */
+$(document).bind('keydown', function(event) {
+  if (event.keyCode >= 65 && event.keyCode <= 90 && !$('#name').is(':focus')) {
+    $('#chat').focus();
+  }
+});
+
+/**
  * Player sends a chat message
  */
 $('#chat').bind('keydown', function(event) {
