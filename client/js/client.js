@@ -496,8 +496,8 @@ $('#roll').click(function() {
     }
   }
   var r = parseInt(Math.random() * WEIGHTED_DICE_ROLLS.length);
-  var message = '--------------------------------------------------------------------<br>';
-  if (WEIGHTED_DICE_ROLLS[r] == 8) {
+  var message = '--------------------------------------------------------------------';
+  if (WEIGHTED_DICE_ROLLS[r] == 8 || WEIGHTED_DICE_ROLLS[r] == 11) {
     message += $('#name').val().toUpperCase() + ' rolled an ' + WEIGHTED_DICE_ROLLS[r];
   } else {
     message += $('#name').val().toUpperCase() + ' rolled a ' + WEIGHTED_DICE_ROLLS[r];
@@ -541,7 +541,7 @@ $('#wood_plus, #wood_minus, #brick_plus, #brick_minus, #hay_plus, #hay_minus, #s
  */
 $('#chat').bind('keydown', function(event) {
   if (event.keyCode == 13) {
-    socket.emit('sendMsgToServer', {message: $('#name').val().toUpperCase() + ': <em>' + $('#chat').val() + '</em>'});
+    socket.emit('sendMsgToServer', {message: $('#name').val().toUpperCase() + ': ' + $('#chat').val()});
     $('#chat').val('');
   }
 });
@@ -551,7 +551,12 @@ $('#chat').bind('keydown', function(event) {
  * data: {message}
  */
 socket.on('logMessage', function(data) {
-  $('#game_log').append('<div>' + data.message + '</div>');
+  $('#game_log').append($('<div>').text(data.message));
+  // Show only last 50 plays
+  if ($('#game_log').children().length >= 50) {
+    var lastPlays = $('#game_log').children().slice(-50);
+    $('#game_log').html(lastPlays);
+  }
   $('#game_log').animate({scrollTop: $('#game_log').get(0).scrollHeight}, 0);
 });
 
@@ -560,7 +565,7 @@ socket.on('logMessage', function(data) {
  * data: {error}
  */
 socket.on('logError', function(data) {
-  $('#game_log').append('<div style="color:red">' + data.error + '</div>');
+  $('#game_log').append($('<div>').text(data.error).css('color', 'red'));
   $('#game_log').animate({scrollTop: $('#game_log').get(0).scrollHeight}, 0);
 });
 

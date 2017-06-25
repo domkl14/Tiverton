@@ -237,18 +237,18 @@ function GameController(io) {
 
     // Initialize board on client side
     socket.emit('initializeBoard', {id: id, name: NAMES[id], game: softClone(self), resources: self.resources});
-    io.sockets.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
+    io.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
 
     // Announce new player joining
-    io.sockets.emit('logMessage', {message: NAMES[id] + ' joined the game'});
-    io.sockets.emit('listPlayers', {players: Object.keys(PLAYER_LIST), names: NAMES});
+    io.emit('logMessage', {message: NAMES[id] + ' joined the game'});
+    io.emit('listPlayers', {players: Object.keys(PLAYER_LIST), names: NAMES});
 
     /**
      * Send message to server / all clients
      * data: {message}
      */
     socket.on('sendMsgToServer', function(data) {
-      io.sockets.emit('logMessage', data);
+      io.emit('logMessage', data);
     });
 
     /**
@@ -296,18 +296,18 @@ function GameController(io) {
       // Change name store
       if (NAMES[data.color].toLowerCase() == data.color) {
         NAMES[newColor] = newColor.toUpperCase();
-        io.sockets.emit('logMessage', {message: data.color.toUpperCase() + ' changed color to ' + 
+        io.emit('logMessage', {message: data.color.toUpperCase() + ' changed color to ' + 
           newColor.toUpperCase()});
       } else {
         NAMES[newColor] = NAMES[data.color];
         NAMES[data.color] = data.color.toUpperCase();
-        io.sockets.emit('logMessage', {message: NAMES[newColor] + ' changed color to ' + newColor.toUpperCase()});
+        io.emit('logMessage', {message: NAMES[newColor] + ' changed color to ' + newColor.toUpperCase()});
       }
 
       socket.emit('changeColorNames', {newColor: newColor});
-      io.sockets.emit('listPlayers', {id: id, players: Object.keys(PLAYER_LIST), names: NAMES});
-      io.sockets.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
-      io.sockets.emit('redrawBoard', {game: softClone(self)});
+      io.emit('listPlayers', {id: id, players: Object.keys(PLAYER_LIST), names: NAMES});
+      io.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
+      io.emit('redrawBoard', {game: softClone(self)});
     });
 
     /**
@@ -315,9 +315,9 @@ function GameController(io) {
      * data: {name}
      */
     socket.on('changeName', function(data) {
-      io.sockets.emit('logMessage', {message: NAMES[id] + ' changed their name to ' + data.name.toUpperCase()});
+      io.emit('logMessage', {message: NAMES[id] + ' changed their name to ' + data.name.toUpperCase()});
       NAMES[id] = data.name.toUpperCase();
-      io.sockets.emit('listPlayers', {id: id, players: Object.keys(PLAYER_LIST), names: NAMES});
+      io.emit('listPlayers', {id: id, players: Object.keys(PLAYER_LIST), names: NAMES});
     });
 
     /**
@@ -332,7 +332,7 @@ function GameController(io) {
           message += NAMES[i] + ' loses ' + parseInt(numResources / 2) + ' resources<br>';
         }
       }
-      io.sockets.emit('logMessage', {message: message});
+      io.emit('logMessage', {message: message});
     });
 
     /**
@@ -385,7 +385,7 @@ function GameController(io) {
           for (var i in pickup) {
             pickup[i][resource] = 0;
           }
-          io.sockets.emit('logMessage', {message: 'Not enough ' + resource.toUpperCase() + ' to fulfill harvest'});
+          io.emit('logMessage', {message: 'Not enough ' + resource.toUpperCase() + ' to fulfill harvest'});
         }
         // One person gets remaining amount of resource
         else if (total > 19 && numPlayersToPickup == 1) {
@@ -411,7 +411,7 @@ function GameController(io) {
         message = message.substring(0, message.length-1) + '<br>';
       }
       if (message != '') {
-        io.sockets.emit('logMessage', {message: message});
+        io.emit('logMessage', {message: message});
       }
     });
 
@@ -426,8 +426,8 @@ function GameController(io) {
         return;
       }
       self.robber = data.idx;
-      io.sockets.emit('logMessage', {message: NAMES[id] + ' moved the ROBBER'});
-      io.sockets.emit('redrawBoard', {game: softClone(self)});
+      io.emit('logMessage', {message: NAMES[id] + ' moved the ROBBER'});
+      io.emit('redrawBoard', {game: softClone(self)});
     });
 
     /**
@@ -462,7 +462,7 @@ function GameController(io) {
       var numResources = self.resources[victimId].wood + self.resources[victimId].brick + self.resources[victimId].hay +
         self.resources[victimId].sheep + self.resources[victimId].ore;
       if (numResources == 0) {
-        io.sockets.emit('logMessage', {message: NAMES[id] + ' robbed NOTHING from ' + 
+        io.emit('logMessage', {message: NAMES[id] + ' robbed NOTHING from ' + 
           NAMES[self.placements[data.idx].id]});
         return;
       }
@@ -479,9 +479,9 @@ function GameController(io) {
       }
       self.resources[victimId][i]--;
       self.resources[id][i]++;
-      io.sockets.emit('setResources', {resources: self.resources});
-      io.sockets.emit('logMessage', {message: NAMES[id] + ' robbed a' + 
-        (robbedResource == 'ORE' ? 'n ' : ' ') + robbedResource.toUpperCase() + ' from ' + 
+      io.emit('setResources', {resources: self.resources});
+      io.emit('logMessage', {message: NAMES[id] + ' robbed a' + 
+        (robbedResource == 'ore' ? 'n ' : ' ') + robbedResource.toUpperCase() + ' from ' + 
         NAMES[self.placements[data.idx].id]});
     });
     
@@ -542,8 +542,8 @@ function GameController(io) {
       }
       if (!adjacent) return;
       self.roadPlacements.push({id: id, idx1: data.idx1, idx2: data.idx2});
-      io.sockets.emit('logMessage', {message: NAMES[id] + ' built a ROAD'});
-      io.sockets.emit('redrawBoard', {game: softClone(self)});
+      io.emit('logMessage', {message: NAMES[id] + ' built a ROAD'});
+      io.emit('redrawBoard', {game: softClone(self)});
     });
 
     /**
@@ -608,8 +608,8 @@ function GameController(io) {
         return;
       }
       self.placements[data.idx] = {id: id, type: data.type};
-      io.sockets.emit('logMessage', {message: NAMES[id] + ' built a ' + data.type.toUpperCase()});
-      io.sockets.emit('redrawBoard', {game: softClone(self)});
+      io.emit('logMessage', {message: NAMES[id] + ' built a ' + data.type.toUpperCase()});
+      io.emit('redrawBoard', {game: softClone(self)});
     });
 
     /**
@@ -641,8 +641,8 @@ function GameController(io) {
       }
       self.playerDevelopmentCards[id].push({type: dcard.type, used: false});
 
-      io.sockets.emit('logMessage', {message: NAMES[id] + ' built a DEVELOPMENT CARD'});
-      io.sockets.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
+      io.emit('logMessage', {message: NAMES[id] + ' built a DEVELOPMENT CARD'});
+      io.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
     });
 
     /**
@@ -665,8 +665,8 @@ function GameController(io) {
         socket.emit('logError', {error: 'INVALID ROAD REMOVAL'});
         return;
       }
-      io.sockets.emit('logMessage', {message: NAMES[id] + ' removed a ROAD'});
-      io.sockets.emit('redrawBoard', {game: softClone(self)});
+      io.emit('logMessage', {message: NAMES[id] + ' removed a ROAD'});
+      io.emit('redrawBoard', {game: softClone(self)});
     });
 
     /**
@@ -687,8 +687,8 @@ function GameController(io) {
         socket.emit('logError', {error: 'INVALID CITY/SETTLEMENT REMOVAL'});
         return;
       }
-      io.sockets.emit('logMessage', {message: NAMES[id] + ' removed a ' + type.toUpperCase()});
-      io.sockets.emit('redrawBoard', {game: softClone(self)});
+      io.emit('logMessage', {message: NAMES[id] + ' removed a ' + type.toUpperCase()});
+      io.emit('redrawBoard', {game: softClone(self)});
     });
 
     /**
@@ -697,8 +697,8 @@ function GameController(io) {
      */
     socket.on('removeDevelopmentCard', function(data) {
       self.playerDevelopmentCards[id].splice(data.idx, 1);
-      io.sockets.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
-      io.sockets.emit('logMessage', {message: NAMES[id] + ' removed a DEVELOPMENT CARD'});
+      io.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
+      io.emit('logMessage', {message: NAMES[id] + ' removed a DEVELOPMENT CARD'});
     });
 
     /**
@@ -725,14 +725,14 @@ function GameController(io) {
       socket.emit('setResources', {resources: self.resources});
       if (data.type == 'plus') {
         if (data.resource == 'ore')
-          io.sockets.emit('logMessage', {message: NAMES[id] + ' picked up an ORE'});
+          io.emit('logMessage', {message: NAMES[id] + ' picked up an ORE'});
         else
-          io.sockets.emit('logMessage', {message: NAMES[id] + ' picked up a ' + data.resource.toUpperCase()});
+          io.emit('logMessage', {message: NAMES[id] + ' picked up a ' + data.resource.toUpperCase()});
       } else if (data.type == 'minus') {
         if (data.resource == 'ore')
-          io.sockets.emit('logMessage', {message: NAMES[id] + ' dropped an ORE'});
+          io.emit('logMessage', {message: NAMES[id] + ' dropped an ORE'});
         else
-          io.sockets.emit('logMessage', {message: NAMES[id] + ' dropped a ' + data.resource.toUpperCase()});
+          io.emit('logMessage', {message: NAMES[id] + ' dropped a ' + data.resource.toUpperCase()});
       }
     });
 
@@ -742,7 +742,7 @@ function GameController(io) {
      */
     socket.on('useDevelopmentCard', function(data) {
       self.playerDevelopmentCards[id][data.idx].used = true;
-      io.sockets.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
+      io.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
       var message;
       if (self.playerDevelopmentCards[id][data.idx].type == 'knight' || 
         self.playerDevelopmentCards[id][data.idx].type == 'victory point') {
@@ -750,7 +750,7 @@ function GameController(io) {
       } else {
         message = NAMES[id] + ' used ' + self.playerDevelopmentCards[id][data.idx].type.toUpperCase();
       }
-      io.sockets.emit('logMessage', {message: message});
+      io.emit('logMessage', {message: message});
     });
 
     /**
@@ -759,7 +759,7 @@ function GameController(io) {
      */
     socket.on('hideDevelopmentCard', function(data) {
       self.playerDevelopmentCards[id][data.idx].used = false;
-      io.sockets.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
+      io.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
     });
 
     /**
@@ -767,9 +767,9 @@ function GameController(io) {
      */
     socket.on('disconnect', function() {
       console.log('Socket disconnected:\t', socket.id, '(' + id + ')');
-      io.sockets.emit('logMessage', {message: NAMES[id] + ' left the game'});
+      io.emit('logMessage', {message: NAMES[id] + ' left the game'});
       delete PLAYER_LIST[id];
-      io.sockets.emit('listPlayers', {players: Object.keys(PLAYER_LIST), names: NAMES});
+      io.emit('listPlayers', {players: Object.keys(PLAYER_LIST), names: NAMES});
     });
   };
   return self;

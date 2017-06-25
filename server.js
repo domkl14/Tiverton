@@ -20,6 +20,6 @@ var io = require('socket.io')(serv, {});
 var game = new GameController(io);
 game.initialize(X0, Y0, S);
 
-io.sockets.on('connection', function(socket) {
+io.on('connection', function(socket) {
   game.onConnection(socket);
 });
