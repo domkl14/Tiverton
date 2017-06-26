@@ -324,15 +324,13 @@ function GameController(io) {
      * A seven is rolled
      */
     socket.on('rollSeven', function(data) {
-      var message = '';
       for (var i in self.resources) {
         var numResources = self.resources[i].wood + self.resources[i].brick + self.resources[i].hay +
           self.resources[i].sheep + self.resources[i].ore;
         if (numResources > 7) {
-          message += NAMES[i] + ' loses ' + parseInt(numResources / 2) + ' resources<br>';
+          io.emit('logMessage', {message: NAMES[i] + ' loses ' + parseInt(numResources / 2) + ' resources'});
         }
       }
-      io.emit('logMessage', {message: message});
     });
 
     /**
@@ -398,19 +396,16 @@ function GameController(io) {
         }
       }
 
-      // Create game log message
-      var message = '';
+      // Log game messages
       for (var i in pickup) {
         if (pickup[i].wood + pickup[i].brick + pickup[i].ore + pickup[i].hay + pickup[i].sheep == 0) continue; 
-        message += NAMES[i] + ' harvested';
+        var message = NAMES[i] + ' harvested';
         if (pickup[i].wood != 0)  message += ' ' + pickup[i].wood + ' WOOD,';
         if (pickup[i].brick != 0) message += ' ' + pickup[i].brick + ' BRICK,';
         if (pickup[i].ore != 0)   message += ' '  + pickup[i].ore + ' ORE,';
         if (pickup[i].hay != 0)   message += ' '  + pickup[i].hay + ' HAY,';
         if (pickup[i].sheep != 0) message += ' '  + pickup[i].sheep + ' SHEEP,';
-        message = message.substring(0, message.length-1) + '<br>';
-      }
-      if (message != '') {
+        message = message.substring(0, message.length-1);
         io.emit('logMessage', {message: message});
       }
     });
