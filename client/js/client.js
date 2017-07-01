@@ -571,13 +571,13 @@ $('#chat').bind('keydown', function(event) {
  * data: {message}
  */
 socket.on('logMessage', function(data) {
-  $('#game_log').prepend($('<div>').text(data.message));
+  $('#game_log').append($('<div>').text(data.message));
   // Show only last 50 plays
   if ($('#game_log').children().length >= 50) {
-    var lastPlays = $('#game_log').children().slice(0, 50);
+    var lastPlays = $('#game_log').children().slice(-50);
     $('#game_log').html(lastPlays);
   }
-  $('#game_log').animate({scrollBottom: $('#game_log').get(0).scrollHeight}, 0);
+  $('#game_log').animate({scrollTop: $('#game_log').get(0).scrollHeight}, 0);
 });
 
 /**
@@ -585,8 +585,8 @@ socket.on('logMessage', function(data) {
  * data: {error}
  */
 socket.on('logError', function(data) {
-  $('#game_log').prepend($('<div>').text(data.error).css('color', 'red'));
-  $('#game_log').animate({scrollBottom: $('#game_log').get(0).scrollHeight}, 0);
+  $('#game_log').append($('<div>').text(data.error).css('color', 'red'));
+  $('#game_log').animate({scrollTop: $('#game_log').get(0).scrollHeight}, 0);
 });
 
 /**
