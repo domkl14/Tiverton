@@ -101,7 +101,7 @@ input {
 #name {
   font-size: 14px;
   text-transform: uppercase;
-  width: 100px;
+  width: 150px;
 }
 
 #roll, #robber, #rob, #road, #settlement, #city, #development_card, #remove_road, #remove_piece {
@@ -130,9 +130,7 @@ input {
   font-size: 13px;
   height: 288px;
   overflow-y: scroll;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding: 5px;
   white-space: pre-wrap;
   width: 317px;
 }

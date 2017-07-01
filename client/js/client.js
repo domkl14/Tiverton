@@ -571,13 +571,13 @@ $('#chat').bind('keydown', function(event) {
  * data: {message}
  */
 socket.on('logMessage', function(data) {
-  $('#game_log').append($('<div>').text(data.message));
+  $('#game_log').prepend($('<div>').text(data.message));
   // Show only last 50 plays
   if ($('#game_log').children().length >= 50) {
-    var lastPlays = $('#game_log').children().slice(-50);
+    var lastPlays = $('#game_log').children().slice(0, 50);
     $('#game_log').html(lastPlays);
   }
-  $('#game_log').animate({scrollTop: $('#game_log').get(0).scrollHeight}, 0);
+  $('#game_log').animate({scrollBottom: $('#game_log').get(0).scrollHeight}, 0);
 });
 
 /**
@@ -585,8 +585,8 @@ socket.on('logMessage', function(data) {
  * data: {error}
  */
 socket.on('logError', function(data) {
-  $('#game_log').append($('<div>').text(data.error).css('color', 'red'));
-  $('#game_log').animate({scrollTop: $('#game_log').get(0).scrollHeight}, 0);
+  $('#game_log').prepend($('<div>').text(data.error).css('color', 'red'));
+  $('#game_log').animate({scrollBottom: $('#game_log').get(0).scrollHeight}, 0);
 });
 
 /**
@@ -872,7 +872,7 @@ function drawPorts(locs) {
   ctx.stroke();
 
   // Draw labels
-  ctx.font = '11pt Courier';
+  ctx.font = '10pt Courier';
   ctx.fillStyle = 'black';
   
   // Wood port (1, 6)
@@ -880,7 +880,7 @@ function drawPorts(locs) {
   ctx.translate(locs[6].x, locs[6].y);
   ctx.rotate(Math.PI / 3);
   ctx.fillStyle = '#145214';
-  ctx.fillText('2W:1', - s * COS_30 * 0.4, s / 2 + 3);
+  ctx.fillText('WOOD', - s * COS_30 * 0.4, s / 2 + 3);
   ctx.restore();
   
   // 3:1 port (10, 11)
@@ -893,13 +893,13 @@ function drawPorts(locs) {
   // Hay port (22, 23)
   ctx.save();
   ctx.fillStyle = '#968a1d';
-  ctx.fillText('2H:1', locs[22].x + s * COS_30 * 0.4, (locs[22].y + locs[23].y) / 2 + 3);
+  ctx.fillText('HAY', locs[22].x + s * COS_30 * 0.4, (locs[22].y + locs[23].y) / 2 + 3);
   ctx.restore();
   
   // Ore port (37, 45)
   ctx.save();
   ctx.fillStyle = '#666666';
-  ctx.fillText('2O:1', locs[37].x + s * COS_30 * 0.4, (locs[37].y + locs[45].y) / 2 + 3);
+  ctx.fillText('ORE', locs[37].x + s * COS_30 * 0.4, (locs[37].y + locs[45].y) / 2 + 3);
   ctx.restore();
   
   // 3:1 port (52, 53)
@@ -914,7 +914,7 @@ function drawPorts(locs) {
   ctx.translate(locs[47].x, locs[47].y);
   ctx.rotate(-Math.PI / 3);
   ctx.fillStyle = '#6b9023';
-  ctx.fillText('2S:1', - s * COS_30 * 0.4, s / 2 + 3);
+  ctx.fillText('SHEEP', - s * COS_30 * 0.4, s / 2 + 3);
   ctx.restore();
 
   // 3:1 port (39, 40)
@@ -932,7 +932,7 @@ function drawPorts(locs) {
   ctx.translate(locs[4].x, locs[4].y);
   ctx.rotate(Math.PI / 3);
   ctx.fillStyle = '#aa3311';
-  ctx.fillText('2B:1', - s * COS_30 * 0.4, s / 2 + 3);
+  ctx.fillText('BRICK', - s * COS_30 * 0.4, s / 2 + 3);
   ctx.restore();
 }
 
