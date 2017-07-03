@@ -1,8 +1,10 @@
-const COLORS = ['red', 'blue', 'white', 'orange'];
-
-function GameController(io) {
+function GameController(io, isExpansion) {
   var PLAYER_LIST = {}; // id by colors
-  var NAMES = {red: 'RED', blue: 'BLUE', white: 'WHITE', orange: 'ORANGE'};
+  const NAMES = !isExpansion ? {red: 'RED', blue: 'BLUE', white: 'WHITE', orange: 'ORANGE'} :
+    {red: 'RED', blue: 'BLUE', white: 'WHITE', orange: 'ORANGE', green: 'GREEN', purple: 'PURPLE'};
+  const COLORS = !isExpansion ? ['red', 'blue', 'white', 'orange'] :
+    ['red', 'blue', 'white', 'orange', 'green', 'purple'];
+  const RESOURCE_LIMIT = !isExpansion ? 19 : 24;
   
   // Game properties
   var self = {
@@ -24,19 +26,33 @@ function GameController(io) {
   // Initialize game
   self.initialize = function(X0, Y0, S) {
     // Initialize tiles
-    self.tiles = [0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5];
+    self.tiles = !isExpansion ? [0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5] : 
+      [-1, -1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5];
     shuffle(self.tiles);
+    
     // Initialize odds
-    self.odds = ['', 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9 ,9, 10, 10, 11, 11, 12];
+    self.odds = !isExpansion ? ['', 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9 ,9, 10, 10, 11, 11, 12] :
+      [0, 0, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9 ,9, 10, 10, 10, 11, 11, 11, 12, 12];
     shuffle(self.odds);
-    // Align sand tile with blank odds
-    self.odds[self.odds.indexOf('')] = self.odds[self.tiles.indexOf(0)];
-    self.odds[self.tiles.indexOf(0)] = '';
+    
+    // Align sand tiles with blank odds
+    if (!isExpansion) {
+      self.odds[self.odds.indexOf('')] = self.odds[self.tiles.indexOf(0)];
+      self.odds[self.tiles.indexOf(0)] = '';
+      self.robber = self.tiles.indexOf(0);
+    } else {
+      self.odds[self.odds.indexOf(0)] = self.odds[self.tiles.indexOf(-1)];
+      self.odds[self.tiles.indexOf(-1)] = '';
+      self.tiles[self.tiles.indexOf(-1)] = 0;
+      self.odds[self.odds.indexOf(0)] = self.odds[self.tiles.indexOf(-1)];
+      self.odds[self.tiles.indexOf(-1)] = '';
+      self.tiles[self.tiles.indexOf(-1)] = 0;
+    }
     self.robber = self.tiles.indexOf(0);
     self.s = S;
     var w = Math.sqrt(3)/2 * S * 2;
     var h = S * 2;
-    self.points = [
+    self.points = !isExpansion ? [
       {x: X0, y: Y0},
       {x: X0 + w, y: Y0},
       {x: X0 + w * 2, y: Y0},
@@ -56,12 +72,44 @@ function GameController(io) {
       {x: X0, y: Y0 + h * 3},
       {x: X0 + w, y: Y0 + h * 3},
       {x: X0 + w * 2, y: Y0 + h * 3},
-    ]
+      ]
+    : [
+      {x: X0, y: Y0},
+      {x: X0 + w, y: Y0},
+      {x: X0 + w * 2, y: Y0},
+      {x: X0 - w / 2, y: Y0 + h * 3 / 4},
+      {x: X0 + w / 2, y: Y0 + h * 3 / 4},
+      {x: X0 + w * 3 / 2, y: Y0 + h * 3 / 4},
+      {x: X0 + w * 5 / 2, y: Y0 + h * 3 / 4},
+      {x: X0 - w, y: Y0 + h * 3 / 2}, 
+      {x: X0, y: Y0 + h * 3 / 2},
+      {x: X0 + w, y: Y0 + h * 3 / 2},
+      {x: X0 + w * 2, y: Y0 + h * 3 / 2},
+      {x: X0 + w * 3, y: Y0 + h * 3 / 2},
+      {x: X0 - w * 3 / 2, y: Y0 + h * 9 / 4},
+      {x: X0 - w / 2, y: Y0 + h * 9 / 4},
+      {x: X0 + w / 2, y: Y0 + h * 9 / 4},
+      {x: X0 + w * 3 / 2, y: Y0 + h * 9 / 4},
+      {x: X0 + w * 5 / 2, y: Y0 + h * 9 / 4},
+      {x: X0 + w * 7 / 2, y: Y0 + h * 9 / 4},
+      {x: X0 - w, y: Y0 + h * 3},
+      {x: X0, y: Y0 + h * 3},
+      {x: X0 + w, y: Y0 + h * 3},
+      {x: X0 + w * 2, y: Y0 + h * 3},
+      {x: X0 + w * 3, y: Y0 + h * 3},
+      {x: X0 - w / 2, y: Y0 + h * 15 / 4},
+      {x: X0 + w / 2, y: Y0 + h * 15 / 4},
+      {x: X0 + w * 3 / 2, y: Y0 + h * 15 / 4},
+      {x: X0 + w * 5 / 2, y: Y0 + h * 15 / 4},
+      {x: X0, y: Y0 + h * 9 / 2},
+      {x: X0 + w, y: Y0 + h * 9 / 2},
+      {x: X0 + w * 2, y: Y0 + h * 9 / 2}
+    ];
     self.locations = [];
     for (var i in self.points) {
       addLocations(self.points[i].x, self.points[i].y, S, self.locations);
     }
-    self.adjacentLocations = {
+    self.adjacentLocations = !isExpansion ? {
       0:  [1, 5],
       1:  [0, 2, 6],
       2:  [1, 3, 9],
@@ -116,8 +164,89 @@ function GameController(io) {
       51: [47, 50],
       52: [46, 53],
       53: [50, 52]
+    } : {
+      0:  [1, 5],
+      1:  [0, 2, 6],
+      2:  [1, 3, 9],
+      3:  [2, 4, 14],
+      4:  [3, 5, 17],
+      5:  [0, 4],
+      6:  [1, 7],
+      7:  [6, 8, 10],
+      8:  [7, 9, 13],
+      9:  [2, 8, 18],
+      10: [7, 11],
+      11: [10, 12],
+      12: [11, 13, 22],
+      13: [8, 12, 20],
+      14: [3, 15, 19],
+      15: [14, 16, 25],
+      16: [15, 17, 28],
+      17: [4, 16],
+      18: [9, 19, 21],
+      19: [14, 18, 29],
+      20: [13, 21, 24],
+      21: [18, 20, 31],
+      22: [12, 23],
+      23: [22, 24, 35],
+      24: [20, 23, 33],
+      25: [15, 26, 30],
+      26: [25, 27, 38],
+      27: [26, 28, 41],
+      28: [16, 27],
+      29: [19, 30, 32],
+      30: [25, 29, 42],
+      31: [21, 32, 34],
+      32: [29, 31, 44],
+      33: [24, 34, 37],
+      34: [31, 33, 46],
+      35: [23, 36],
+      36: [35, 37, 50],
+      37: [33, 36, 48],
+      38: [26, 39, 43],
+      39: [38, 40, 55],
+      40: [39, 41],
+      41: [27, 40],
+      42: [30, 43, 45],
+      43: [38, 42, 53],
+      44: [32, 45, 47],
+      45: [42, 44, 56],
+      46: [34, 47, 49],
+      47: [44, 46, 58],
+      48: [37, 49, 52],
+      49: [46, 48, 60],
+      50: [36, 51],
+      51: [50, 52],
+      52: [48, 51, 62],
+      53: [43, 54, 57],
+      54: [53, 55, 66],
+      55: [39, 54],
+      56: [45, 57, 59],
+      57: [53, 56, 64],
+      58: [47, 59, 61],
+      59: [56, 58, 67],
+      60: [49, 61, 63],
+      61: [58, 60, 69],
+      62: [52, 63],
+      63: [60, 62, 71],
+      64: [57, 65, 68],
+      65: [64, 66, 75],
+      66: [54, 65],
+      67: [59, 68, 70],
+      68: [64, 67, 73],
+      69: [61, 70, 72],
+      70: [67, 69, 76],
+      71: [63, 72],
+      72: [69, 71, 78],
+      73: [68, 74, 77],
+      74: [73, 75],
+      75: [65, 74],
+      76: [77, 79],
+      77: [73, 76],
+      78: [72, 79],
+      79: [76, 78]
     };
-    self.adjacentTiles = {
+    self.adjacentTiles = !isExpansion ? {
       0:  [0],
       1:  [0, 1],
       2:  [0, 1, 4],
@@ -172,6 +301,87 @@ function GameController(io) {
       51: [17],
       52: [18],
       53: [18]
+    } : {
+      0:  [0],
+      1:  [0, 1],
+      2:  [0, 1, 4],
+      3:  [0, 3, 4],
+      4:  [0, 3],
+      5:  [0],
+      6:  [1],
+      7:  [1, 2],
+      8:  [1, 2, 5],
+      9:  [1, 4, 5],
+      10: [2],
+      11: [2],
+      12: [2, 6],
+      13: [2, 5, 6],
+      14: [3, 4, 8],
+      15: [3, 7, 8],
+      16: [3, 7],
+      17: [3],
+      18: [4, 5, 9],
+      19: [4, 8, 9],
+      20: [5, 6, 10],
+      21: [5, 9, 10],
+      22: [6],
+      23: [6, 11],
+      24: [6, 10, 11],
+      25: [7, 8, 13],
+      26: [7, 12, 13],
+      27: [7, 12],
+      28: [7],
+      29: [8, 9, 14],
+      30: [8, 13, 14],
+      31: [9, 10, 15],
+      32: [9, 14, 15],
+      33: [10, 11, 16],
+      34: [10, 15, 16],
+      35: [11],
+      36: [11, 17],
+      37: [11, 16 , 17],
+      38: [12, 13, 18],
+      39: [12, 18],
+      40: [12],
+      41: [12],
+      42: [13, 14, 19],
+      43: [13, 18, 19],
+      44: [14, 15, 20],
+      45: [14, 19, 20],
+      46: [15, 16, 21],
+      47: [15, 20, 21],
+      48: [16, 17, 22],
+      49: [16, 21, 22],
+      50: [17],
+      51: [17],
+      52: [17, 22],
+      53: [18, 19, 23],
+      54: [18, 23],
+      55: [18],
+      56: [19, 20, 24],
+      57: [19, 23, 24],
+      58: [20, 21, 25],
+      59: [20, 24, 25],
+      60: [21, 22, 26],
+      61: [21, 25, 26],
+      62: [22],
+      63: [22, 26],
+      64: [23, 24, 27],
+      65: [23, 27],
+      66: [23],
+      67: [24, 25, 28],
+      68: [24, 27, 28],
+      69: [25, 26, 29],
+      70: [25, 28, 29],
+      71: [26],
+      72: [26, 29],
+      73: [27, 28],
+      74: [27],
+      75: [27],
+      76: [28, 29],
+      77: [28],
+      78: [29],
+      79: [29]
     };
     self.developmentCards = [
       {type: 'knight', owner: null},
@@ -200,13 +410,26 @@ function GameController(io) {
       {type: 'year of plenty', owner: null},
       {type: 'year of plenty', owner: null}
     ];
+    if (isExpansion) {
+      self.developmentCards.push(
+        {type: 'knight', owner: null},
+        {type: 'knight', owner: null},
+        {type: 'knight', owner: null},
+        {type: 'knight', owner: null},
+        {type: 'knight', owner: null},
+        {type: 'knight', owner: null},
+        {type: 'road building', owner: null},
+        {type: 'monopoly', owner: null},
+        {type: 'year of plenty', owner: null}
+      );
+    }
     return self;
   }
 
   // On socket connection to game
   self.onConnection = function(socket) {
     // Maximum of four players
-    if (Object.keys(PLAYER_LIST).length >= 4) {
+    if (Object.keys(PLAYER_LIST).length >= COLORS.length) {
       console.log('Socket rejected:\t', socket.id);
       socket.emit('gameIsFull');
       return;
@@ -256,13 +479,13 @@ function GameController(io) {
      * data: {color}
      */
     socket.on('changeColor', function(data) {
-      if (Object.keys(PLAYER_LIST).length >= 4) {
+      if (Object.keys(PLAYER_LIST).length >= COLORS.length) {
         socket.emit('logError', {error: 'ALL COLORS TAKEN'});
         return;
       }
       var idx = COLORS.indexOf(data.color);
       while (PLAYER_LIST[COLORS[idx]] != null) {
-        idx = (idx + 1) % 4;
+        idx = (idx + 1) % COLORS.length;
       }
       var newColor = COLORS[idx];
       
@@ -379,17 +602,17 @@ function GameController(io) {
           }
         }
         // No one picks up
-        if (total > 19 && numPlayersToPickup > 1) {
+        if (total > RESOURCE_LIMIT && numPlayersToPickup > 1) {
           for (var i in pickup) {
             pickup[i][resource] = 0;
           }
           io.emit('logMessage', {message: 'Not enough ' + resource.toUpperCase() + ' to fulfill harvest'});
         }
         // One person gets remaining amount of resource
-        else if (total > 19 && numPlayersToPickup == 1) {
+        else if (total > RESOURCE_LIMIT && numPlayersToPickup == 1) {
           for (var i in pickup) {
             if (pickup[i][resource] != 0) {
-              pickup[i][resource] = 19 - resource_counts[resource];
+              pickup[i][resource] = RESOURCE_LIMIT - resource_counts[resource];
               break;
             }
           }
@@ -706,7 +929,7 @@ function GameController(io) {
         var count = 0;
         for (var i in self.resources)
           count += self.resources[i][data.resource];
-        if (count >= 19) {
+        if (count >= RESOURCE_LIMIT) {
           socket.emit('logError', {error: 'No more ' + data.resource.toUpperCase() + ' remaining'});
           return;
         }

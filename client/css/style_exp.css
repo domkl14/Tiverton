@@ -1,0 +1,7 @@
+#game_log {
+  height: 430px;
+}
+
+#opponent_4_dcards, #opponent_5_dcards {
+  padding-left: 5px;
+}

@@ -3,11 +3,12 @@
 <head>
   <link href='//fonts.googleapis.com/css?family=Lato:400,300,700' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" type="text/css" href="/client/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/client/css/style_exp.css">
 </head>
 <body>
 <div id="container">
   <div class="left">
-    <canvas id="ctx" width="800" height="660"></canvas>
+    <canvas id="ctx" width="810" height="825"></canvas>
   </div>
   <div id="controls" class="right">
     <div id="info">
@@ -75,6 +76,14 @@
           <td></td>
           <td class="resource">TOTAL</td>
           <td id="total_count" class="count"></td>
+          <td class="opponent"><span id="opponent_4_name"></span><span id="opponent_4_dcards"></span></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="opponent"><span id="opponent_5_name"></span><span id="opponent_5_dcards"></span></td>
         </tr>
       </table>
     </div>
@@ -89,7 +98,7 @@
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
-  const isExpansion = false;
+  const isExpansion = true;
 </script>
 <script src="/client/js/client.js"></script>
 </html>
