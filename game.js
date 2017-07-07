@@ -20,7 +20,8 @@ function GameController(io, isExpansion) {
     resources: {}, // Resources per player
     robber: 0, // Robber location
     placements: [], // Placements per location
-    roadPlacements: [] // Array of placed roads between location coordinates
+    roadPlacements: [], // Array of placed roads between location coordinates
+    hasAutoPickup: {} // Players having auto-pickup on
   }
 
   // Initialize game
@@ -423,6 +424,8 @@ function GameController(io, isExpansion) {
         {type: 'year of plenty', owner: null}
       );
     }
+    self.hasAutoPickup = !isExpansion ? {red: false, blue: false, white: false, orange: false} :
+      {red: false, blue: false, white: false, orange: false, green: false, purple: false};
     return self;
   }
 
@@ -621,14 +624,28 @@ function GameController(io, isExpansion) {
 
       // Log game messages
       for (var i in pickup) {
-        if (pickup[i].wood + pickup[i].brick + pickup[i].ore + pickup[i].hay + pickup[i].sheep == 0) continue; 
-        var message = NAMES[i] + ' harvested';
+        if (pickup[i].wood + pickup[i].brick + pickup[i].ore + pickup[i].hay + pickup[i].sheep == 0) continue;
+        var message;
+        if (self.hasAutoPickup[i]) {
+          message = NAMES[i] + ' picked up';
+        } else {
+          message = NAMES[i] + ' harvested';
+        }
         if (pickup[i].wood != 0)  message += ' ' + pickup[i].wood + ' WOOD,';
         if (pickup[i].brick != 0) message += ' ' + pickup[i].brick + ' BRICK,';
         if (pickup[i].ore != 0)   message += ' '  + pickup[i].ore + ' ORE,';
         if (pickup[i].hay != 0)   message += ' '  + pickup[i].hay + ' HAY,';
         if (pickup[i].sheep != 0) message += ' '  + pickup[i].sheep + ' SHEEP,';
-        message = message.substring(0, message.length-1);
+        message = message.substring(0, message.length - 1);
+
+        if (self.hasAutoPickup[i]) {
+          self.resources[i].wood += pickup[i].wood;
+          self.resources[i].brick += pickup[i].brick;
+          self.resources[i].ore += pickup[i].ore;
+          self.resources[i].hay += pickup[i].hay;
+          self.resources[i].sheep += pickup[i].sheep;
+        }
+        io.emit('setResources', {resources: self.resources});
         io.emit('logMessage', {message: message});
       }
     });
@@ -701,6 +718,13 @@ function GameController(io, isExpansion) {
       io.emit('logMessage', {message: NAMES[id] + ' robbed a' + 
         (robbedResource == 'ore' ? 'n ' : ' ') + robbedResource.toUpperCase() + ' from ' + 
         NAMES[self.placements[data.idx].id]});
+    });
+
+    /**
+     * Player toggles auto-pickup
+     */
+    socket.on('toggleAutoPickup', function(data) {
+      self.hasAutoPickup[id] = !self.hasAutoPickup[id];
     });
     
     /**
@@ -1020,7 +1044,8 @@ function softClone(game) {
     adjacentTiles: game.adjacentTiles,
     robber: game.robber,
     placements: game.placements,
-    roadPlacements: game.roadPlacements
+    roadPlacements: game.roadPlacements,
+    hasAutoPickup: game.hasAutoPickup
   }
   return clone;
 }

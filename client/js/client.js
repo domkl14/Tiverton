@@ -3,8 +3,8 @@
     {red: 'rgb(217, 31, 0)', blue: 'rgb(0, 115, 230)', white: 'rgb(255, 255, 255)', orange: 'rgb(255, 165, 0)'} :
     {red: 'rgb(217, 31, 0)', blue: 'rgb(0, 115, 230)', white: 'rgb(255, 255, 255)', orange: 'rgb(255, 165, 0)', 
       green: 'rgb(0, 179, 0)', purple: 'rgb(174, 91, 215)'};
-  const BUTTON_IDS = ['move_robber', 'rob', 'road', 'settlement', 'city', 'remove_road', 'remove_piece', 
-    'remove_development_card'];
+  const BUTTON_IDS = ['#move_robber', '#rob', '#road', '#settlement', '#city', '#remove_road', '#remove_piece', 
+    '#remove_development_card'];
   const PROBABILITIES = {2: '.', 3: '..', 4: '...', 5: '....', 6: '.....', 8: '.....', 9: '....', 10: '...', 11: '..', 
     12: '.'};
   const EPS = 0.001;
@@ -30,6 +30,9 @@
     id = data.id;
     $('#color').text(id.toUpperCase());
     $('#name').val(data.name);
+    if (game.hasAutoPickup[id]) {
+      $('#auto_pickup').addClass('active');
+    }
 
     // Set resources
     $('#wood_count').text(data.resources[id].wood);
@@ -491,12 +494,11 @@
   /**
    * Button click handlers
    */
-  $('#move_robber, #rob, #road, #settlement, #city, #remove_road, #remove_piece, #remove_development_card').click(
-    function() {
+  $(BUTTON_IDS.toString()).click(function() {
     var isHighlighted = $(this).hasClass('active');
     for (var i in BUTTON_IDS) {
-      if ($('#' + BUTTON_IDS[i]).hasClass('active')) {
-        $('#' + BUTTON_IDS[i]).removeClass('active');
+      if ($(BUTTON_IDS[i]).hasClass('active') && BUTTON_IDS[i] != '#auto_pickup') {
+        $(BUTTON_IDS[i]).removeClass('active');
       }
     }
     if (!isHighlighted) {
@@ -510,8 +512,8 @@
   $('#roll').click(function() {
     // Unhighlight all buttons
     for (var i in BUTTON_IDS) {
-      if($('#' + BUTTON_IDS[i]).hasClass('active')) {
-        $('#' + BUTTON_IDS[i]).removeClass('active');
+      if($(BUTTON_IDS[i]).hasClass('active') && BUTTON_IDS[i] != '#auto_pickup') {
+        $(BUTTON_IDS[i]).removeClass('active');
       }
     }
     var roll = (parseInt(Math.random() * 6) + 1) + (parseInt(Math.random() * 6) + 1);
@@ -529,6 +531,14 @@
     } else {
       socket.emit('distributeResources', {roll: roll});
     }
+  });
+
+  /**
+   * Turn on auto pickup for resources
+   */
+  $('#auto_pickup').click(function() {
+    $(this).toggleClass('active');
+    socket.emit('toggleAutoPickup');
   });
 
   /**

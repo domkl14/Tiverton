@@ -106,7 +106,7 @@ input {
   width: 150px;
 }
 
-#roll, #robber, #rob, #road, #settlement, #city, #development_card, #remove_road, #remove_piece, 
+#roll, #robber, #rob, #auto_pickup, #road, #settlement, #city, #development_card, #remove_road, #remove_piece, 
 #remove_development_card {
   margin-bottom: 1px;
   margin-top: 5px;
