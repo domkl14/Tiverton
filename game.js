@@ -462,7 +462,7 @@ function GameController(io, isExpansion) {
     }
 
     // Initialize board on client side
-    socket.emit('initializeBoard', {id: id, name: NAMES[id], game: softClone(self), resources: self.resources});
+    socket.emit('initializeBoard', {id: id, name: NAMES[id], game: self, resources: self.resources});
     io.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
 
     // Announce new player joining
@@ -533,7 +533,7 @@ function GameController(io, isExpansion) {
       socket.emit('changeColorNames', {newColor: newColor});
       io.emit('listPlayers', {id: id, players: Object.keys(PLAYER_LIST), names: NAMES});
       io.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
-      io.emit('redrawBoard', {game: softClone(self)});
+      io.emit('redrawBoard', {game: self});
     });
 
     /**
@@ -662,7 +662,7 @@ function GameController(io, isExpansion) {
       }
       self.robber = data.idx;
       io.emit('logMessage', {message: NAMES[id] + ' moved the ROBBER'});
-      io.emit('redrawBoard', {game: softClone(self)});
+      io.emit('redrawBoard', {game: self});
     });
 
     /**
@@ -785,7 +785,7 @@ function GameController(io, isExpansion) {
       if (!adjacent) return;
       self.roadPlacements.push({id: id, idx1: data.idx1, idx2: data.idx2});
       io.emit('logMessage', {message: NAMES[id] + ' built a ROAD'});
-      io.emit('redrawBoard', {game: softClone(self)});
+      io.emit('redrawBoard', {game: self});
     });
 
     /**
@@ -851,7 +851,7 @@ function GameController(io, isExpansion) {
       }
       self.placements[data.idx] = {id: id, type: data.type};
       io.emit('logMessage', {message: NAMES[id] + ' built a ' + data.type.toUpperCase()});
-      io.emit('redrawBoard', {game: softClone(self)});
+      io.emit('redrawBoard', {game: self});
     });
 
     /**
@@ -908,7 +908,7 @@ function GameController(io, isExpansion) {
         return;
       }
       io.emit('logMessage', {message: NAMES[id] + ' removed a ROAD'});
-      io.emit('redrawBoard', {game: softClone(self)});
+      io.emit('redrawBoard', {game: self});
     });
 
     /**
@@ -930,7 +930,7 @@ function GameController(io, isExpansion) {
         return;
       }
       io.emit('logMessage', {message: NAMES[id] + ' removed a ' + type.toUpperCase()});
-      io.emit('redrawBoard', {game: softClone(self)});
+      io.emit('redrawBoard', {game: self});
     });
 
     /**
@@ -1028,26 +1028,6 @@ function shuffle(a) {
     a[i - 1] = a[j];
     a[j] = x;
   }
-}
-
-/**
- * Clone game without sensitive fields (i.e. resources)
- */
-function softClone(game) {
-  var clone = {
-    s: game.s,
-    tiles: game.tiles,
-    odds: game.odds,
-    points: game.points,
-    locations: game.locations,
-    adjacentLocations: game.adjacentLocations,
-    adjacentTiles: game.adjacentTiles,
-    robber: game.robber,
-    placements: game.placements,
-    roadPlacements: game.roadPlacements,
-    hasAutoPickup: game.hasAutoPickup
-  }
-  return clone;
 }
 
 /**
