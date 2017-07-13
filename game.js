@@ -627,7 +627,7 @@ function GameController(io, isExpansion) {
         if (pickup[i].wood + pickup[i].brick + pickup[i].ore + pickup[i].hay + pickup[i].sheep == 0) continue;
         var message;
         if (self.hasAutoPickup[i]) {
-          message = NAMES[i] + ' picked up';
+          message = NAMES[i] + ' auto-picked up';
         } else {
           message = NAMES[i] + ' harvested';
         }
