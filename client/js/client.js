@@ -1,11 +1,11 @@
 (function() {
-  const COLORS = !isExpansion ? 
+  const COLORS = !isExpansion ?
     {red: 'rgb(217, 31, 0)', blue: 'rgb(0, 115, 230)', white: 'rgb(255, 255, 255)', orange: 'rgb(255, 165, 0)'} :
-    {red: 'rgb(217, 31, 0)', blue: 'rgb(0, 115, 230)', white: 'rgb(255, 255, 255)', orange: 'rgb(255, 165, 0)', 
+    {red: 'rgb(217, 31, 0)', blue: 'rgb(0, 115, 230)', white: 'rgb(255, 255, 255)', orange: 'rgb(255, 165, 0)',
       green: 'rgb(0, 179, 0)', purple: 'rgb(174, 91, 215)'};
-  const BUTTON_IDS = ['#move_robber', '#rob', '#road', '#settlement', '#city', '#remove_road', '#remove_piece', 
+  const BUTTON_IDS = ['#move_robber', '#rob', '#road', '#settlement', '#city', '#remove_road', '#remove_piece',
     '#remove_development_card'];
-  const PROBABILITIES = {2: '.', 3: '..', 4: '...', 5: '....', 6: '.....', 8: '.....', 9: '....', 10: '...', 11: '..', 
+  const PROBABILITIES = {2: '.', 3: '..', 4: '...', 5: '....', 6: '.....', 8: '.....', 9: '....', 10: '...', 11: '..',
     12: '.'};
   const EPS = 0.001;
 
@@ -20,7 +20,7 @@
   var id;
   var s;
 
-  /** 
+  /**
    * Initialize board
    * data: {id, name, game, resources}
    */
@@ -40,15 +40,15 @@
     $('#hay_count').text(data.resources[id].hay);
     $('#sheep_count').text(data.resources[id].sheep);
     $('#ore_count').text(data.resources[id].ore);
-    $('#total_count').text(data.resources[id].wood + data.resources[id].brick + data.resources[id].hay + 
+    $('#total_count').text(data.resources[id].wood + data.resources[id].brick + data.resources[id].hay +
       data.resources[id].sheep + data.resources[id].ore);
     if ($('#total_count').text() >= 10) {
       $('#my_dcards_title, #my_dcards_1, #my_dcards_2, .opponent').css('padding-left', '17px');
-    } 
+    }
     else {
       $('#my_dcards_title, #my_dcards_1, #my_dcards_2, .opponent').css('padding-left', '25px');
     }
-    
+
     // Clear game log
     $('#game_log').text('');
 
@@ -97,11 +97,11 @@
     $('#hay_count').text(data.resources[id].hay);
     $('#sheep_count').text(data.resources[id].sheep);
     $('#ore_count').text(data.resources[id].ore);
-    $('#total_count').text(data.resources[id].wood + data.resources[id].brick + data.resources[id].hay + 
+    $('#total_count').text(data.resources[id].wood + data.resources[id].brick + data.resources[id].hay +
       data.resources[id].sheep + data.resources[id].ore);
     if ($('#total_count').text() >= 10) {
       $('#my_dcards_title, #my_dcards_1, #my_dcards_2, .opponent').css('padding-left', '17px');
-    } 
+    }
     else {
       $('#my_dcards_title, #my_dcards_1, #my_dcards_2, .opponent').css('padding-left', '25px');
     }
@@ -191,7 +191,7 @@
         if (i == 'green') $('#opponent_' + count + '_name').css('padding-right', '3px');
         if (i == 'purple') $('#opponent_' + count + '_name').css('padding-right', '5px');
       }
-      
+
       var text = '';
       for (var j in data.playerDevelopmentCards[i]) {
         if (data.playerDevelopmentCards[i][j].used) {
@@ -224,7 +224,7 @@
         min_idx = i;
       }
     }
-    
+
     // Player is moving the robber
     if ($('#move_robber').hasClass('active')) {
       // Get closest upper point location per tile
@@ -260,7 +260,7 @@
       }
       socket.emit('addRoad', {idx1: min_idx, idx2: min_idx2});
       $('#road').removeClass('active');
-    } 
+    }
     // Player is placing a settlement
     else if ($('#settlement').hasClass('active')) {
       socket.emit('addPiece', {idx: min_idx, type: 'settlement'});
@@ -300,7 +300,7 @@
     if ($('#road').hasClass('active') || $('#settlement').hasClass('active') || $('#city').hasClass('active')) {
       drawBoard(game);
       ctx.fillStyle = 'rgba' + COLORS[id].substring(3, COLORS[id].length - 1) + ', 0.5)';
-    } else if ($('#move_robber').hasClass('active') || $('#rob').hasClass('active') 
+    } else if ($('#move_robber').hasClass('active') || $('#rob').hasClass('active')
       || $('#remove_road').hasClass('active') || $('#remove_piece').hasClass('active')) {
       drawBoard(game);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
@@ -321,7 +321,7 @@
         min_idx = i;
       }
     }
-    
+
     // Player is moving the robber
     if ($('#move_robber').hasClass('active')) {
       // Get closest upper point location per tile
@@ -665,8 +665,8 @@
 
     // Draw roads
     for (var i in game.roadPlacements) {
-      drawRoad(game.locations[game.roadPlacements[i].idx1].x, game.locations[game.roadPlacements[i].idx1].y, 
-        game.locations[game.roadPlacements[i].idx2].x, game.locations[game.roadPlacements[i].idx2].y, 
+      drawRoad(game.locations[game.roadPlacements[i].idx1].x, game.locations[game.roadPlacements[i].idx1].y,
+        game.locations[game.roadPlacements[i].idx2].x, game.locations[game.roadPlacements[i].idx2].y,
         game.roadPlacements[i].id);
     }
 
@@ -896,7 +896,7 @@
     // Draw labels
     ctx.font = '10pt Courier';
     ctx.fillStyle = 'black';
-    
+
     // Wood port (1, 6)
     ctx.save();
     ctx.translate(locs[6].x, locs[6].y);
@@ -904,26 +904,26 @@
     ctx.fillStyle = '#145214';
     ctx.fillText('WOOD', - s * COS_30 * 0.4, s / 2 + 3);
     ctx.restore();
-    
+
     // 3:1 port (10, 11)
     ctx.save();
     ctx.translate(locs[10].x, locs[10].y);
     ctx.rotate(-Math.PI / 3);
     ctx.fillText('3:1', s * COS_30 * 0.4, s / 2 + 3);
     ctx.restore();
-    
+
     // Hay port (22, 23)
     ctx.save();
     ctx.fillStyle = '#968a1d';
     ctx.fillText('HAY', locs[22].x + s * COS_30 * 0.4, (locs[22].y + locs[23].y) / 2 + 3);
     ctx.restore();
-    
+
     // Ore port (37, 45)
     ctx.save();
     ctx.fillStyle = '#666666';
     ctx.fillText('ORE', locs[37].x + s * COS_30 * 0.4, (locs[37].y + locs[45].y) / 2 + 3);
     ctx.restore();
-    
+
     // 3:1 port (52, 53)
     ctx.save();
     ctx.translate(locs[52].x, locs[52].y);
@@ -948,7 +948,7 @@
 
     // 3:1 port (27, 28)
     ctx.fillText('3:1', locs[27].x - s * COS_30 * 0.4, (locs[27].y + locs[28].y) / 2 + 3);
-    
+
     // Brick port (4, 17)
     ctx.save();
     ctx.translate(locs[4].x, locs[4].y);
@@ -1259,7 +1259,7 @@
     ctx.stroke();
   }
 
-  /** 
+  /**
    * Draw a city at (x, y)
    */
   function drawCity(x, y, color) {

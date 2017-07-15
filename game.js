@@ -5,7 +5,7 @@ function GameController(io, isExpansion) {
   const COLORS = !isExpansion ? ['red', 'blue', 'white', 'orange'] :
     ['red', 'blue', 'white', 'orange', 'green', 'purple'];
   const RESOURCE_LIMIT = !isExpansion ? 19 : 24;
-  
+
   // Game properties
   var self = {
     s: 0, // Side length of a tile
@@ -27,15 +27,15 @@ function GameController(io, isExpansion) {
   // Initialize game
   self.initialize = function(X0, Y0, S) {
     // Initialize tiles
-    self.tiles = !isExpansion ? [0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5] : 
+    self.tiles = !isExpansion ? [0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5] :
       [-1, -1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5];
     shuffle(self.tiles);
-    
+
     // Initialize odds
     self.odds = !isExpansion ? ['', 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9 ,9, 10, 10, 11, 11, 12] :
       [0, 0, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9 ,9, 10, 10, 10, 11, 11, 11, 12, 12];
     shuffle(self.odds);
-    
+
     // Align sand tiles with blank odds
     if (!isExpansion) {
       self.odds[self.odds.indexOf('')] = self.odds[self.tiles.indexOf(0)];
@@ -61,7 +61,7 @@ function GameController(io, isExpansion) {
       {x: X0 + w / 2, y: Y0 + h * 3 / 4},
       {x: X0 + w * 3 / 2, y: Y0 + h * 3 / 4},
       {x: X0 + w * 5 / 2, y: Y0 + h * 3 / 4},
-      {x: X0 - w, y: Y0 + h * 3 / 2}, 
+      {x: X0 - w, y: Y0 + h * 3 / 2},
       {x: X0, y: Y0 + h * 3 / 2},
       {x: X0 + w, y: Y0 + h * 3 / 2},
       {x: X0 + w * 2, y: Y0 + h * 3 / 2},
@@ -82,7 +82,7 @@ function GameController(io, isExpansion) {
       {x: X0 + w / 2, y: Y0 + h * 3 / 4},
       {x: X0 + w * 3 / 2, y: Y0 + h * 3 / 4},
       {x: X0 + w * 5 / 2, y: Y0 + h * 3 / 4},
-      {x: X0 - w, y: Y0 + h * 3 / 2}, 
+      {x: X0 - w, y: Y0 + h * 3 / 2},
       {x: X0, y: Y0 + h * 3 / 2},
       {x: X0 + w, y: Y0 + h * 3 / 2},
       {x: X0 + w * 2, y: Y0 + h * 3 / 2},
@@ -491,14 +491,14 @@ function GameController(io, isExpansion) {
         idx = (idx + 1) % COLORS.length;
       }
       var newColor = COLORS[idx];
-      
+
       // Change placements
       for (var i in self.placements) {
         if (self.placements[i] != null && self.placements[i].id == data.color) {
           self.placements[i].id = newColor;
         }
       }
-      
+
       // Change road placements
       for (var i in self.roadPlacements) {
         if (self.roadPlacements[i] != null && self.roadPlacements[i].id == data.color) {
@@ -508,21 +508,21 @@ function GameController(io, isExpansion) {
       // Change resources
       self.resources[newColor] = self.resources[data.color];
       delete self.resources[data.color];
-      
+
       // Change player development cards
       self.playerDevelopmentCards[newColor] = self.playerDevelopmentCards[data.color];
       delete self.playerDevelopmentCards[data.color];
-      
+
       // Change id in player list
       PLAYER_LIST[newColor] = PLAYER_LIST[data.color];
       delete PLAYER_LIST[data.color];
       console.log('Socket changed:\t\t', id ,'->', newColor);
       id = newColor;
-      
+
       // Change name store
       if (NAMES[data.color].toLowerCase() == data.color) {
         NAMES[newColor] = newColor.toUpperCase();
-        io.emit('logMessage', {message: data.color.toUpperCase() + ' changed color to ' + 
+        io.emit('logMessage', {message: data.color.toUpperCase() + ' changed color to ' +
           newColor.toUpperCase()});
       } else {
         NAMES[newColor] = NAMES[data.color];
@@ -697,7 +697,7 @@ function GameController(io, isExpansion) {
       var numResources = self.resources[victimId].wood + self.resources[victimId].brick + self.resources[victimId].hay +
         self.resources[victimId].sheep + self.resources[victimId].ore;
       if (numResources == 0) {
-        io.emit('logMessage', {message: NAMES[id] + ' robbed NOTHING from ' + 
+        io.emit('logMessage', {message: NAMES[id] + ' robbed NOTHING from ' +
           NAMES[self.placements[data.idx].id]});
         return;
       }
@@ -715,8 +715,8 @@ function GameController(io, isExpansion) {
       self.resources[victimId][i]--;
       self.resources[id][i]++;
       io.emit('setResources', {resources: self.resources});
-      io.emit('logMessage', {message: NAMES[id] + ' robbed a' + 
-        (robbedResource == 'ore' ? 'n ' : ' ') + robbedResource.toUpperCase() + ' from ' + 
+      io.emit('logMessage', {message: NAMES[id] + ' robbed a' +
+        (robbedResource == 'ore' ? 'n ' : ' ') + robbedResource.toUpperCase() + ' from ' +
         NAMES[self.placements[data.idx].id]});
     });
 
@@ -726,7 +726,7 @@ function GameController(io, isExpansion) {
     socket.on('toggleAutoPickup', function(data) {
       self.hasAutoPickup[id] = !self.hasAutoPickup[id];
     });
-    
+
     /**
      * Player requests to add a road
      * data: {idx1, idx2}
@@ -757,8 +757,8 @@ function GameController(io, isExpansion) {
       if (self.placements[data.idx2] != null && self.placements[data.idx2].id == id) connectedToPiece = true;
       var connectedToRoad = false;
       for (var i in self.roadPlacements) {
-        if (self.roadPlacements[i].id == id && (self.roadPlacements[i].idx1 == data.idx1 || 
-          self.roadPlacements[i].idx1 == data.idx2 || self.roadPlacements[i].idx2 == data.idx1 || 
+        if (self.roadPlacements[i].id == id && (self.roadPlacements[i].idx1 == data.idx1 ||
+          self.roadPlacements[i].idx1 == data.idx2 || self.roadPlacements[i].idx2 == data.idx1 ||
           self.roadPlacements[i].idx2 == data.idx2)) {
           connectedToRoad = true;
           break;
@@ -768,7 +768,7 @@ function GameController(io, isExpansion) {
       if (count >= 2 && (!connectedToRoad && !connectedToPiece)) {
         socket.emit('logError', {error: 'NOT CONNECTED TO A ROAD / SETTLEMENT / CITY'});
         return;
-      } 
+      }
       // If less than two roads - has to be connected to a settlement
       if (count < 2 && !connectedToPiece) {
         socket.emit('logError', {error: 'INVALID INITIAL ROAD PLACEMENT'});
@@ -816,7 +816,7 @@ function GameController(io, isExpansion) {
         if (numRoads >= 2) {
           var connectedToRoad = false;
           for (var i in self.roadPlacements) {
-            if (self.roadPlacements[i].id == id && (self.roadPlacements[i].idx1 == data.idx || 
+            if (self.roadPlacements[i].id == id && (self.roadPlacements[i].idx1 == data.idx ||
               self.roadPlacements[i].idx2 == data.idx)) {
               connectedToRoad = true;
               break;
@@ -895,8 +895,8 @@ function GameController(io, isExpansion) {
       // Check validity
       var isValid = false;
       for (var i in self.roadPlacements) {
-        if (self.roadPlacements[i].id == id && (self.roadPlacements[i].idx1 == data.idx1 && 
-          self.roadPlacements[i].idx2 == data.idx2 || self.roadPlacements[i].idx2 == data.idx1 && 
+        if (self.roadPlacements[i].id == id && (self.roadPlacements[i].idx1 == data.idx1 &&
+          self.roadPlacements[i].idx2 == data.idx2 || self.roadPlacements[i].idx2 == data.idx1 &&
           self.roadPlacements[i].idx1 == data.idx2)) {
           isValid = true;
           self.roadPlacements.splice(i, 1);
@@ -963,7 +963,7 @@ function GameController(io, isExpansion) {
       if (self.resources[id] == null)
         self.resources[id] = {wood: 0, brick: 0, hay: 0, sheep: 0, ore: 0};
       self.resources[id][data.resource] += data.type == 'plus' ? 1 : -1;
-      
+
       socket.emit('setResources', {resources: self.resources});
       if (data.type == 'plus') {
         if (data.resource == 'ore')
@@ -986,7 +986,7 @@ function GameController(io, isExpansion) {
       self.playerDevelopmentCards[id][data.idx].used = true;
       io.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
       var message;
-      if (self.playerDevelopmentCards[id][data.idx].type == 'knight' || 
+      if (self.playerDevelopmentCards[id][data.idx].type == 'knight' ||
         self.playerDevelopmentCards[id][data.idx].type == 'victory point') {
         message = NAMES[id] + ' used a ' + self.playerDevelopmentCards[id][data.idx].type.toUpperCase();
       } else {
