@@ -470,12 +470,10 @@
 
   /**
    * Change player color
-   * data: {newColor}
+   * data: {newColor, name}
    */
   socket.on('changeColorNames', function(data) {
-    if ($('#name').val() == $('#color').text()) {
-      $('#name').val(data.newColor.toUpperCase());
-    }
+    $('#name').val(data.name.toUpperCase());
     $('#color').text(data.newColor.toUpperCase());
     id = data.newColor;
   });

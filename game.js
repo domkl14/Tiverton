@@ -492,45 +492,18 @@ function GameController(io, isExpansion) {
       }
       var newColor = COLORS[idx];
 
-      // Change placements
-      for (var i in self.placements) {
-        if (self.placements[i] != null && self.placements[i].id == data.color) {
-          self.placements[i].id = newColor;
-        }
-      }
-
-      // Change road placements
-      for (var i in self.roadPlacements) {
-        if (self.roadPlacements[i] != null && self.roadPlacements[i].id == data.color) {
-          self.roadPlacements[i].id = newColor;
-        }
-      }
-      // Change resources
-      self.resources[newColor] = self.resources[data.color];
-      delete self.resources[data.color];
-
-      // Change player development cards
-      self.playerDevelopmentCards[newColor] = self.playerDevelopmentCards[data.color];
-      delete self.playerDevelopmentCards[data.color];
-
       // Change id in player list
       PLAYER_LIST[newColor] = PLAYER_LIST[data.color];
       delete PLAYER_LIST[data.color];
       console.log('Socket changed:\t\t', id ,'->', newColor);
       id = newColor;
 
-      // Change name store
-      if (NAMES[data.color].toLowerCase() == data.color) {
-        NAMES[newColor] = newColor.toUpperCase();
-        io.emit('logMessage', {message: data.color.toUpperCase() + ' changed color to ' +
-          newColor.toUpperCase()});
-      } else {
-        NAMES[newColor] = NAMES[data.color];
-        NAMES[data.color] = data.color.toUpperCase();
-        io.emit('logMessage', {message: NAMES[newColor] + ' changed color to ' + newColor.toUpperCase()});
+      if (self.resources[id] == null) {
+        self.resources[id] = {wood: 0, brick: 0, hay: 0, sheep: 0, ore: 0};
       }
 
-      socket.emit('changeColorNames', {newColor: newColor});
+      socket.emit('changeColorNames', {newColor: newColor, name: NAMES[newColor]});
+      socket.emit('setResources', {resources: self.resources});
       io.emit('listPlayers', {id: id, players: Object.keys(PLAYER_LIST), names: NAMES});
       io.emit('setDevelopmentCards', {playerDevelopmentCards: self.playerDevelopmentCards});
       io.emit('redrawBoard', {game: self});
