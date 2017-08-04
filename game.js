@@ -983,6 +983,7 @@ function GameController(io, isExpansion) {
     socket.on('disconnect', function() {
       console.log('Socket disconnected:\t', socket.id, '(' + id + ')');
       io.emit('logMessage', {message: NAMES[id] + ' left the game'});
+      delete self.hasAutoPickup[id];
       delete PLAYER_LIST[id];
       io.emit('listPlayers', {players: Object.keys(PLAYER_LIST), names: NAMES});
     });
